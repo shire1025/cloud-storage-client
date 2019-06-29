@@ -1,17 +1,20 @@
 /**
  * 点击路由跳转基础配置
  */
-// import _ from 'lodash'
-// import authRoteIot from '../libs/authRouterIot';
-// import $store from '../store'
+import store from '../store'
+import * as types from '../constants/mutation-types'
+
 const Mixins = {
     install(Vue) {
         Vue.mixin({
             computed: {
+                cloudSettingList() {
+                    return store.state[types.CLOUD_SETTING_LIST]
+                }
             },
             methods: {
-                PUSH(data, time) {
-                    // console.log('PUSH', data);
+                PUSH(data, time = '') {
+                    console.log('PUSH', data, time)
                     // if (time) {
                     //     data.query.time
                     // }

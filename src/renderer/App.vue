@@ -5,8 +5,12 @@
 </template>
 
 <script>
+    // import * as types from './constants/mutation-types'
     export default {
-        name: 'csc-app'
+        name: 'csc-app',
+        mounted() {
+            this.$store.dispatch('cloudSettingList')
+        }
     }
 </script>
 

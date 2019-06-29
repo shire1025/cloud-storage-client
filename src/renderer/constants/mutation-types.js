@@ -1,0 +1,1 @@
+export const CLOUD_SETTING_LIST = 'CLOUD_SETTING_LIST'

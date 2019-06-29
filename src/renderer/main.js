@@ -4,6 +4,7 @@ import axios from 'axios'
 import App from './App'
 import router from './router'
 import store from './store'
+import './helper'
 
 import Mixins from './mixins/index'
 import ElementUI from 'element-ui'

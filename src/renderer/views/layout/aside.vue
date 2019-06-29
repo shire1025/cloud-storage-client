@@ -30,9 +30,9 @@
             <i class="el-icon-document"></i>
             <span slot="title">导航三</span>
         </el-menu-item>
-        <el-menu-item index="4">
+        <el-menu-item index="4" :router="{name: 'setting'}">
             <i class="el-icon-setting"></i>
-            <span slot="title">导航四</span>
+            <span slot="title">设置</span>
         </el-menu-item>
     </el-menu>
 </template>

@@ -19,6 +19,11 @@ export default new Router({
           path: '/setting',
           name: 'setting',
           component: require('@/views/setting/setting').default
+        },
+        {
+          path: '/list',
+          name: 'list',
+          component: require('@/views/main/list').default
         }
       ]
     },
