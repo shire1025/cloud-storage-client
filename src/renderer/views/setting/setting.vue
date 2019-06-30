@@ -18,15 +18,15 @@
                             :label="item.value">{{item.label}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="ID">
-                    <el-input v-model="editData.ID"
-                        placeholder="请输入ID"
+                <el-form-item label="ACCESS_KEY">
+                    <el-input v-model="editData.ACCESS_KEY"
+                        placeholder="请输入ACCESS_KEY"
                         clearable>
                     </el-input>
                 </el-form-item>
-                <el-form-item label="KEY">
-                    <el-input v-model="editData.KEY"
-                        placeholder="请输入KEY"
+                <el-form-item label="SECRET_KEY">
+                    <el-input v-model="editData.SECRET_KEY"
+                        placeholder="请输入SECRET_KEY"
                         clearable>
                     </el-input>
                 </el-form-item>
@@ -45,51 +45,24 @@
     } from '../../constants/index'
     import uuid from '../../utils/uuid'
     import _ from '../../helper/lodash'
+    // import mac from '../../utils/test'
     // import * as types from '../../constants/mutation-types'
     export default {
         name: 'setting',
         components: {},
         data() {
             return {
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    province: '上海',
-                    city: '普陀区',
-                    address: '上海市普陀区金沙江路 1518 弄',
-                    zip: 200333
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    province: '上海',
-                    city: '普陀区',
-                    address: '上海市普陀区金沙江路 1517 弄',
-                    zip: 200333
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    province: '上海',
-                    city: '普陀区',
-                    address: '上海市普陀区金沙江路 1519 弄',
-                    zip: 200333
-                }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    province: '上海',
-                    city: '普陀区',
-                    address: '上海市普陀区金沙江路 1516 弄',
-                    zip: 200333
-                }],
                 CSC_TYPE,
                 listData: [],
                 editData: {
                     type: 'qiniu',
-                    ID: '',
-                    KEY: ''
+                    ACCESS_KEY: '',
+                    SECRET_KEY: ''
                 }
             }
         },
         mounted() {
+            // console.log('object', mac)
             this.queryList()
         },
         methods: {
@@ -103,8 +76,8 @@
                 this.$store.dispatch('cloudSettingList', data)
                 this.editData = {
                     type: 'qiniu',
-                    ID: '',
-                    KEY: ''
+                    ACCESS_KEY: '',
+                    SECRET_KEY: ''
                 }
             },
             handleClose(key, keyPath) {

@@ -3,7 +3,7 @@
         class="el-menu-vertical-demo"
         @open="handleOpen"
         @close="handleClose">
-        <el-submenu index="1">
+        <!-- <el-submenu index="1">
             <template slot="title">
                 <i class="el-icon-location"></i>
                 <span>导航一</span>
@@ -20,17 +20,19 @@
                 <template slot="title">选项4</template>
                 <el-menu-item index="1-4-1">选项1</el-menu-item>
             </el-submenu>
-        </el-submenu>
-        <el-menu-item index="2">
+        </el-submenu> -->
+        <el-menu-item index="2"
+            @click.native="PUSH({name: 'list'})">
             <i class="el-icon-menu"></i>
-            <span slot="title">导航二</span>
+            <span slot="title">七牛</span>
         </el-menu-item>
-        <el-menu-item index="3"
+        <!-- <el-menu-item index="3"
             disabled>
             <i class="el-icon-document"></i>
             <span slot="title">导航三</span>
-        </el-menu-item>
-        <el-menu-item index="4" :router="{name: 'setting'}">
+        </el-menu-item> -->
+        <el-menu-item index="4"
+            @click.native="PUSH({name: 'setting'})">
             <i class="el-icon-setting"></i>
             <span slot="title">设置</span>
         </el-menu-item>

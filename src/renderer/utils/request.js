@@ -1,30 +1,24 @@
+import Vue from 'vue'
 import axios from 'axios'
 import qs from 'qs'
-import store from '../store'
-import router from '../router/index'
+// import store from '../store'
+// import router from '../router/index'
 import { HTTP_STATUS } from '../constants/ecode'
-import storage from './storage'
+// import storage from '../helper/storage'
 import _ from '../helper/lodash'
-import { Notice } from 'iview'
 
-const http = axios.create({
-    baseURL: store.state.apiHost,
+const request = axios.create({
+    baseURL: '',
     timeout: 20000,
     responseType: 'json',
-    withCredentials: true, // 是否允许带cookie这些
+    withCredentials: false, // 是否允许带cookie这些
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
     },
     // 只能用在 'PUT', 'POST' 和 'PATCH' 这几个请求方法
     transformRequest: [
-        function (data) {
-            // console.log('transformRequest', data);
-            let m = {
-                token: store.state.token,
-                COMPANYID: store.state.userInfo.companyId
-            }
-            // console.log('transformRequest', qs.stringify(_.assign(data, m)));
-            return qs.stringify(_.assign(data, m))
+        function (params) {
+            return qs.stringify(params)
         }
     ],
     // `transformResponse` 在传递给 then/catch 前，允许修改响应数据
@@ -32,26 +26,20 @@ const http = axios.create({
         // 这里提前处理返回的数据
         return data
     }],
-    paramsSerializer(data) {
-        return qs.stringify(data)
+    paramsSerializer(params) {
+        return qs.stringify(params)
     }
 })
 // 添加请求拦截器
-http.interceptors.request.use(config => {
+request.interceptors.request.use(config => {
+    console.log('http.interceptors.request', config)
     // 完全不存在token 直接驳回请求，并跳转登录
-
     if (config.method === 'get') {
-        try {
-            config.params.token = store.state.token
-            config.params.COMPANYID = store.state.userInfo.companyId
-        } catch (error) {
-
-        }
     }
     if (config.method === 'post') {
         // 判断是否为流
         if (config.headers['Content-Type'] == 'application/json') {
-            config.url = `${config.url}&COMPANYID=${store.state.userInfo.companyId}`
+            // config.url = `${config.url}&COMPANYID=${store.state.userInfo.companyId}`
         }
     }
     // 在发送请求之前做些什么
@@ -61,71 +49,45 @@ http.interceptors.request.use(config => {
     return Promise.reject(error)
 })
 // 添加响应拦截器
-http.interceptors.response.use(response => {
-    // console.log('http', response.data)
+request.interceptors.response.use(response => {
+    console.log('http.interceptors.response', response)
     response.data = _.isString(response.data) ? JSON.parse(response.data) : response.data
     const data = response.data
-    if (response.request.status && response.request.status === 200) {
-        let msgLen = (data.rspMsg && data.rspMsg.length) || 0
+    if (response.request && response.request.status && response.request.status === 200) {
         switch (Number(data.rspCode)) {
             case HTTP_STATUS.SUCCESS:
                 // 正常反馈
-                return response
+                return data
             case HTTP_STATUS.ERROR:
                 // 参数错误
-                Notice.warning({
-                    title: msgLen > 20 ? '温馨提示' : data.rspMsg,
-                    desc: msgLen > 20 ? data.rspMsg : ''
-                })
-                // Promise.reject(response)
+                Vue.prototype.$notify.warning({ title: data.rspMsg })
                 return Promise.reject(response)
             case HTTP_STATUS.AUTHENTICATE:
-                // 未登录
-                Notice.destroy()
-                Notice.error({
-                    title: msgLen > 20 ? '温馨提示' : data.rspMsg,
-                    desc: msgLen > 20 ? data.rspMsg : ''
-                })
-                // 清除vux数据
-                store.commit('token', '')
-                store.commit('userInfo', {})
-                store.commit('authList', [])
-                // 清除本地缓存
-                storage.remove('layim')
-                storage.remove('userInfo')
-                storage.remove('authList')
-                router.push({ name: 'login' })
-                return
+                //未登录
+                Vue.prototype.$notify.closeAll()
+                Vue.prototype.$notify.error({ title: data.rspMsg })
+                return Promise.reject(data)
             default:
                 // 额外参数
-                return response
+                return Promise.reject(data)
         }
     } else {
-        return response
+        return data
     }
     // 对响应数据做点什么
 }, function (error) {
     console.log('error', error)
-    // console.log('error222', error.code, error.message, error.config);
     // 请求超时
     if (error.code == 'ECONNABORTED' && error.message.indexOf('timeout') != -1 && !error.config._retry) {
-        Notice.destroy()
-        Notice.error({ title: '请求超时，请稍候重试' })
+        Vue.prototype.$notify.closeAll()
+        Vue.prototype.$notify.error({ title: '请求超时，请稍候重试' })
     }
-    if (error.request.status === HTTP_STATUS.OK) {
-        Notice.destroy()
-        // Notice.error({title: data.rspMsg})
-        // 清除vux数据
-        // store.commit('token', '')
-        // 清除本地缓存
-        storage.remove('layim')
-        storage.remove('userInfo')
-        storage.remove('authList')
-        router.push({ name: 'login' })
+    if (error.request && error.request.status === HTTP_STATUS.OK) {
+        Vue.prototype.$notify.closeAll()
         return
     }
     //= =============  错误处理  ====================
-    if (error.response.status) {
+    if (error.response && error.response.status) {
         switch (error.response.status) {
             case HTTP_STATUS.BAD_REQUEST:
                 error.message = '请求错误(400)'
@@ -157,7 +119,7 @@ http.interceptors.response.use(response => {
             default:
                 error.message = `连接出错(${error.response.status})!`
         }
-        Notice.error({ title: error.message })
+        // Vue.prototype.$notify.error({ title: error.message })
     } else {
         error.message = '连接服务器失败!'
     }
@@ -165,23 +127,4 @@ http.interceptors.response.use(response => {
     return Promise.reject(error)
 })
 
-/**
- * 封装后的axios 上传方法
- *
- * @param {string} url 请求路径
- * @param {object} formData blob
- * @param {object} [config] 特殊配置项（选填）
- * @returns
- */
-http.upload = (url, formData, config = {}) => {
-    return http.post(url, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        },
-        transformRequest: [function (data) {
-            return data
-        }],
-        ...config
-    })
-}
-export default http
+export default request
